@@ -1,7 +1,7 @@
 import '@fontsource-variable/inter';
 import React from 'react';
 import { AbsoluteFill, Audio, continueRender, delayRender, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from 'remotion';
-import { HubleadApp } from './hublead-app/hublead-app';
+import { HubleadApp, type HubleadAppProps } from './hublead-app/hublead-app';
 import './hublead-app/hublead-app.css';
 import { type CameraKey, type Capture, type ChannelItem, type Click, type FilmSpec, type Highlight, type Popup, type Scene, sceneSeconds, type Swap } from './spec';
 
@@ -40,24 +40,45 @@ const BLOBS: [number, number, number, string, number][] = [
   [420, 20, 70, '205 122 255', 0.55],
 ];
 
+// The violet backdrop: soft blobs, blurred and warped by an SVG filter. The filter runs on a 480 x 270 canvas that CSS
+// scales x4: run on the full 1080p frame, the turbulence cost about 15 s a frame in a CPU-only Chrome (a 45 s film took
+// hours on the VM); the result is a blur, so the lower resolution does not show.
 const Stage: React.FC<{ f: number }> = ({ f }) => {
   const t = f / FPS;
+  const canvas = React.useRef<HTMLCanvasElement>(null);
+  const id = `warp-${React.useId().replace(/:/g, '')}`;
+  React.useLayoutEffect(() => {
+    const ctx = canvas.current?.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, 480, 270);
+    ctx.filter = `url(#${id})`;
+    // the filter reads one layer: draw the blobs on a scratch canvas, then draw that through the filter
+    const layer = document.createElement('canvas');
+    layer.width = 480;
+    layer.height = 270;
+    const l = layer.getContext('2d')!;
+    BLOBS.forEach(([cx, cy, r, rgb, o], i) => {
+      l.globalAlpha = o;
+      l.fillStyle = `rgb(${rgb})`;
+      l.beginPath();
+      l.arc(cx + 26 * Math.sin(t * 0.3 + i * 1.7), cy + 18 * Math.cos(t * 0.26 + i * 2.1), r, 0, Math.PI * 2);
+      l.fill();
+    });
+    ctx.drawImage(layer, 0, 0);
+    ctx.filter = 'none';
+  }, [t, id]);
   return (
     <AbsoluteFill style={{ background: '#160B33' }}>
-      <svg viewBox="0 0 480 270" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
-          <filter id="warp" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
+          <filter id={id} x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
             <feGaussianBlur in="SourceGraphic" stdDeviation="34" result="soft" />
             <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="noise" />
             <feDisplacementMap in="soft" in2="noise" scale="90" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
-        <g filter="url(#warp)">
-          {BLOBS.map(([cx, cy, r, rgb, o], i) => (
-            <circle key={i} cx={cx + 26 * Math.sin(t * 0.3 + i * 1.7)} cy={cy + 18 * Math.cos(t * 0.26 + i * 2.1)} r={r} fill={`rgb(${rgb})`} opacity={o} />
-          ))}
-        </g>
       </svg>
+      <canvas ref={canvas} width={480} height={270} style={{ position: 'absolute', left: 0, top: 0, width: 480, height: 270, transform: 'scale(4)', transformOrigin: '0 0' }} />
       <AbsoluteFill style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 45%, rgba(22,11,51,0) 0%, rgba(22,11,51,0.55) 100%)' }} />
       <AbsoluteFill style={{ backgroundImage: `url(${staticFile(`brand/grain${Math.floor(f / 2) % 4}.png`)})`, backgroundSize: '256px 256px', backgroundPosition: `${(f * 37) % 512}px ${(f * 61) % 512}px`, mixBlendMode: 'overlay', opacity: 0.55 }} />
     </AbsoluteFill>
@@ -94,12 +115,59 @@ const StepPill: React.FC<{ t: number; dur: number; n: number; text: string }> = 
   );
 };
 
+// The dashboard runs some animations on its own clock: chart lines draw themselves (Recharts), panels fade in. A
+// frame taken soon after the app mounted caught them half drawn (empty or half charts), and which frames did depended
+// on how busy the machine was. So each time the app mounts, rendering waits at least MIN_SETTLE_MS (a chart can start
+// drawing a second after mount, once its container is measured), then until the fonts are in and the app's DOM has not
+// changed for QUIET_MS (at most MAX_SETTLE_MS), and the app's CSS animations and transitions are switched off.
+const MIN_SETTLE_MS = 2500;
+const QUIET_MS = 600;
+const MAX_SETTLE_MS = 10000;
+const SETTLE_CSS = '.film-live-app *, .film-live-app *::before, .film-live-app *::after { animation: none !important; transition: none !important; }';
+
+const LiveApp: React.FC<HubleadAppProps> = (props) => {
+  const root = React.useRef<HTMLDivElement>(null);
+  const [handle] = React.useState(() => delayRender('letting the dashboard settle (charts, fonts)', { timeoutInMilliseconds: MAX_SETTLE_MS + 20000 }));
+  React.useEffect(() => {
+    let done = false;
+    let quiet: ReturnType<typeof setTimeout> | undefined;
+    const end = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(quiet);
+      clearTimeout(cap);
+      observer.disconnect();
+      continueRender(handle);
+    };
+    const start = Date.now();
+    const arm = () => {
+      clearTimeout(quiet);
+      const wait = Math.max(QUIET_MS, MIN_SETTLE_MS - (Date.now() - start));
+      quiet = setTimeout(() => document.fonts.ready.then(end), wait);
+    };
+    const observer = new MutationObserver(arm);
+    if (root.current) observer.observe(root.current, { subtree: true, childList: true, attributes: true, characterData: true });
+    const cap = setTimeout(() => {
+      console.warn(`[film] the dashboard was still moving after ${MAX_SETTLE_MS / 1000} s: frames may show it half drawn`);
+      end();
+    }, MAX_SETTLE_MS);
+    arm();
+    return end;
+  }, [handle]);
+  return (
+    <div className="film-live-app" ref={root} style={{ width: '100%', height: '100%' }}>
+      <style>{SETTLE_CSS}</style>
+      <HubleadApp {...props} />
+    </div>
+  );
+};
+
 const Shot: React.FC<{ capture: Capture; radius?: number }> = ({ capture, radius = 22 }) => {
   const { w, h } = capture;
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: w, height: h, borderRadius: radius, overflow: 'hidden', background: WHITE, boxShadow: '0 70px 160px rgba(22,11,51,0.55), 0 10px 30px rgba(22,11,51,0.3)' }}>
       {capture.app ? (
-        <HubleadApp key={seedKey(capture.app)} {...capture.app} width={w} height={h} />
+        <LiveApp key={seedKey(capture.app)} {...capture.app} width={w} height={h} />
       ) : (
         <Img src={src(capture.src ?? '')} style={{ width: w, height: h, display: 'block' }} />
       )}
@@ -120,11 +188,20 @@ type Resolved<T> = T & { x: number; y: number };
 
 const ownText = (el: Element) => (el.textContent ?? '').replace(/\s+/g, ' ').trim();
 
+const warnedTwice = new Set<string>();
+
 /** Finds a target inside the app: the smallest element whose text is the label (else contains it), or a CSS selector. */
 const findTarget = (root: HTMLElement, label: string): HTMLElement | null => {
   if (label.startsWith('css:')) return root.querySelector<HTMLElement>(label.slice(4));
   const all = [...root.querySelectorAll<HTMLElement>('button, a, [role=tab], [role=menuitem], [role=option], th, td, label, h1, h2, h3, p, span, div')];
   const exact = all.filter((el) => ownText(el) === label);
+  // the same text in two places (a card title and a column header, the signed-in user and a table row): the smallest
+  // wins, which may not be the one the film means; say so once, a css: selector settles it
+  const places = exact.filter((el) => !exact.some((o) => o !== el && el.contains(o)));
+  if (places.length > 1 && !warnedTwice.has(label)) {
+    warnedTwice.add(label);
+    console.warn(`[film] target "${label}" is on screen ${places.length} times, the smallest one is used: aim with a css: selector`);
+  }
   const loose = exact.length ? exact : all.filter((el) => ownText(el).includes(label));
   const pick = loose.sort((a, b) => a.offsetWidth * a.offsetHeight - b.offsetWidth * b.offsetHeight)[0];
   return pick ? (pick.closest<HTMLElement>('button, a, [role=tab], [role=menuitem]') ?? pick) : null;

@@ -83,9 +83,13 @@ node scripts/render.mjs --still 12.5     # one moment
 ```
 
 Look at the frames yourself (Read the PNGs) and fix before showing anything: text readable, pointer on its
-button, nothing cut at the edges, no empty frame, step pills not covering what the step shows, no personal data,
-the live app's sidebar and header drawn as in the real dashboard. A `[film] target not found` line in the output
-means the pointer or the camera fell back to the middle of the capture: fix the target's text.
+button, nothing cut at the edges, no empty frame, step pills not covering what the step shows, no personal data.
+A crop that cuts through the dashboard's sidebar leaves a strip of chevrons and New / Soon badges that reads as a
+broken app: frame the whole sidebar or none of it. A camera centred on a button near the window's edge leaves half
+the frame empty: aim at the row or the panel instead, or set `x` on the key.
+The sheet prints the film's own warnings: `[film] target not found` means the pointer or the camera fell back to the
+middle of the capture (fix the target's text); `[film] target "..." is on screen 2 times` means the camera may aim at
+the wrong one (a card title and a column header, the signed-in user and a table row): use a `css:` selector.
 
 ## 7. Render and hand over
 
@@ -94,8 +98,8 @@ node scripts/render.mjs                  # out/<name>.mp4, 1080p, ~14 Mb/s
 open "out/<name>.mp4"
 ```
 
-A full render takes several minutes because the dashboard is rendered for real on every frame: run it in the
-background and say so. Give them the file path, ask what to change, iterate. To preview live while editing they
+A full render takes a while because the dashboard is rendered for real on every frame (about 1 to 2 s a frame on a
+4-core machine, so 20 to 45 min for a 45 s film): run it in the background and say so. Give them the file path, ask what to change, iterate. To preview live while editing they
 can run `npm run studio` (it opens in the browser).
 
 ## Rules

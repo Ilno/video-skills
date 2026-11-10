@@ -34,11 +34,8 @@ if (still < 0) {
 }
 
 if (args.includes("--sheet")) {
-  const film = JSON.parse(fs.readFileSync("film.json", "utf8"))
-  const len = film.scenes.reduce((a, s) => a + (s.type === "channels" ? s.items.reduce((b, i) => b + i.seconds, 0) : s.seconds), 0) - 0.5 * (film.scenes.length - 1)
-  fs.mkdirSync("out/sheet", { recursive: true })
-  for (let s = 0.5; s < len; s += 1) npx(["still", "Film", `out/sheet/${String(s.toFixed(1)).padStart(5, "0")}.png`, `--frame=${Math.round(s * 30)}`, "--log=warn"])
-  console.log("\nout/sheet ready")
+  // one bundle and one browser for the whole sheet (scripts/sheet.mjs); a `remotion still` per frame bundled again each time
+  execFileSync(process.execPath, [path.join(film, "scripts", "sheet.mjs")], { cwd: film, stdio: "inherit" })
   process.exit(0)
 }
 

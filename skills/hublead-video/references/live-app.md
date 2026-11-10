@@ -65,4 +65,10 @@ but at x 980. Highlights get `pad` (pixels around the element, default 8).
 - The app is a still picture of the real UI driven by the film: a click shows the pointer and the ring, it does
   not change the app by itself. Show the result with a `swap` (tab, dialog) or a `popup` (a capture).
 - Only the pages above and the first step of the watch dialog exist in the bundle. Other screens: captures.
+- `enrichments` is the jobs list only, with fixed sample jobs that no prop changes: one Failed ("Not enough credits
+  when the job started"), one Paused, one Canceled, and a credits column. There is no launch dialog, no job page and
+  no review step, so it cannot tell a Bulk Enrichment story on its own: keep the camera on the Completed rows, or
+  ask a developer to add those screens (`studio/README.md`).
+- `activity` takes no props either: its sample numbers (382 new contacts, 852 invitations, 358 messages, 14 members)
+  are fixed.
 - The bundle is rebuilt by a developer when the dashboard changes (`studio/README.md` at the plugin root).
