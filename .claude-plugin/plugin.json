@@ -1,0 +1,8 @@
+{
+  "name": "hublead-video",
+  "version": "0.1.0",
+  "description": "Make a Hublead feature video in minutes: the real dashboard components, real captures, Hublead's art direction, music and sound, rendered to MP4.",
+  "author": { "name": "Hublead" },
+  "license": "MIT",
+  "keywords": ["video", "remotion", "marketing", "hublead"]
+}

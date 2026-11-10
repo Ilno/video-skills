@@ -1,0 +1,6 @@
+node_modules/
+out/
+studio/node_modules
+studio/app.css
+studio/app.ts
+.DS_Store

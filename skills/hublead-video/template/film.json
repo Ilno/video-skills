@@ -1,0 +1,416 @@
+{
+  "scenes": [
+    {
+      "type": "title",
+      "seconds": 3,
+      "text": "Your best contacts change jobs.",
+      "capture": {
+        "src": "captures/linkedin-job-change-detected-modal.png",
+        "w": 880,
+        "h": 686,
+        "scale": 0.75
+      }
+    },
+    {
+      "type": "brand",
+      "seconds": 2.7,
+      "text": "Hublead tells you.\nAutomatically."
+    },
+    {
+      "type": "shot",
+      "seconds": 3.4,
+      "step": "Track any contact from LinkedIn",
+      "capture": {
+        "src": "captures/linkedin-profile-with-panel.png",
+        "w": 1135,
+        "h": 1064
+      },
+      "camera": [
+        {
+          "t": 0,
+          "x": 567,
+          "y": 520,
+          "zoom": 0.62,
+          "tiltX": 8,
+          "tiltY": -16
+        },
+        {
+          "t": 1.7,
+          "x": 567,
+          "y": 560,
+          "zoom": 0.8,
+          "tiltY": -4
+        },
+        {
+          "t": 3.4,
+          "x": 600,
+          "y": 760,
+          "zoom": 0.95
+        }
+      ]
+    },
+    {
+      "type": "shot",
+      "seconds": 6.8,
+      "step": "Track any contact from LinkedIn",
+      "capture": {
+        "src": "captures/linkedin-panel-not-tracked.png",
+        "w": 1078,
+        "h": 1120
+      },
+      "camera": [
+        {
+          "t": 0,
+          "x": 539,
+          "y": 420,
+          "zoom": 0.8
+        },
+        {
+          "t": 1.3,
+          "x": 880,
+          "y": 540,
+          "zoom": 1.75
+        },
+        {
+          "t": 5.7,
+          "x": 880,
+          "y": 540,
+          "zoom": 1.85
+        },
+        {
+          "t": 6.8,
+          "x": 820,
+          "y": 560,
+          "zoom": 1.6
+        }
+      ],
+      "clicks": [
+        {
+          "t": 1.6,
+          "x": 962,
+          "y": 549,
+          "from": [
+            760,
+            760
+          ]
+        }
+      ],
+      "popups": [
+        {
+          "t": 2.0,
+          "until": 5.1,
+          "src": "captures/linkedin-track-modal-monthly.png",
+          "w": 880,
+          "h": 704,
+          "scale": 0.98,
+          "clicks": [
+            {
+              "t": 3.3,
+              "x": 171,
+              "y": 344,
+              "from": [
+                620,
+                160
+              ]
+            },
+            {
+              "t": 4.5,
+              "x": 441,
+              "y": 622
+            }
+          ],
+          "swaps": [
+            {
+              "t": 3.4,
+              "src": "captures/linkedin-track-modal-quarterly.png"
+            }
+          ]
+        }
+      ],
+      "toast": {
+        "t": 5.2,
+        "until": 6.4,
+        "text": "Now tracking job changes",
+        "x": 640,
+        "y": 420
+      }
+    },
+    {
+      "type": "shot",
+      "seconds": 10.8,
+      "step": "Or watch a whole HubSpot segment",
+      "capture": {
+        "w": 1440,
+        "h": 900,
+        "app": {
+          "page": "job-changes",
+          "user": {
+            "firstName": "Claire",
+            "lastName": "Morel",
+            "email": "claire@acme.com"
+          }
+        }
+      },
+      "camera": [
+        {
+          "t": 0,
+          "x": 900,
+          "y": 250,
+          "zoom": 1.0,
+          "tiltY": 12
+        },
+        {
+          "t": 1.4,
+          "target": "Watch a segment",
+          "zoom": 1.35
+        },
+        {
+          "t": 10.8,
+          "target": "Watch a segment",
+          "zoom": 1.4
+        }
+      ],
+      "clicks": [
+        {
+          "t": 1.6,
+          "target": "Watch a segment",
+          "from": [
+            1100,
+            520
+          ]
+        }
+      ],
+      "popups": [
+        {
+          "t": 2.2,
+          "until": 4.8,
+          "src": "captures/watch-segment-1-list.png",
+          "w": 1154,
+          "h": 960,
+          "scale": 0.82,
+          "clicks": [
+            {
+              "t": 3.0,
+              "x": 220,
+              "y": 288,
+              "from": [
+                700,
+                700
+              ]
+            },
+            {
+              "t": 4.2,
+              "x": 1024,
+              "y": 906
+            }
+          ]
+        },
+        {
+          "t": 4.6,
+          "until": 6.6,
+          "src": "captures/watch-segment-2-contacts.png",
+          "w": 1066,
+          "h": 1120,
+          "scale": 0.78,
+          "clicks": [
+            {
+              "t": 6.0,
+              "x": 946,
+              "y": 1070,
+              "from": [
+                1000,
+                900
+              ]
+            }
+          ]
+        },
+        {
+          "t": 6.4,
+          "until": 9.0,
+          "src": "captures/watch-segment-3-alerts.png",
+          "w": 952,
+          "h": 1247,
+          "scale": 0.7,
+          "clicks": [
+            {
+              "t": 7.3,
+              "x": 875,
+              "y": 983,
+              "from": [
+                800,
+                700
+              ]
+            },
+            {
+              "t": 8.5,
+              "x": 845,
+              "y": 1203
+            }
+          ]
+        },
+        {
+          "t": 8.8,
+          "until": 10.8,
+          "src": "captures/watch-segment-4-review.png",
+          "w": 1036,
+          "h": 1149,
+          "scale": 0.76,
+          "clicks": [
+            {
+              "t": 10.1,
+              "x": 795,
+              "y": 1097,
+              "from": [
+                800,
+                950
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "shot",
+      "seconds": 5.3,
+      "step": "Every job change, in one place",
+      "capture": {
+        "w": 1440,
+        "h": 900,
+        "app": {
+          "page": "job-changes",
+          "user": {
+            "firstName": "Claire",
+            "lastName": "Morel",
+            "email": "claire@acme.com"
+          }
+        }
+      },
+      "camera": [
+        {
+          "t": 0,
+          "x": 720,
+          "y": 450,
+          "zoom": 1.0,
+          "tiltX": 6,
+          "tiltY": -10
+        },
+        {
+          "t": 2.2,
+          "target": "Michael Johnson",
+          "x": 980,
+          "zoom": 1.7
+        },
+        {
+          "t": 5.3,
+          "x": 1000,
+          "y": 620,
+          "zoom": 1.55,
+          "tiltY": -4
+        }
+      ],
+      "highlights": [
+        {
+          "t": 2.4,
+          "until": 4.8,
+          "target": "css:[data-slot=job-changes-route] tbody tr:first-child",
+          "pad": 4
+        }
+      ]
+    },
+    {
+      "type": "shot",
+      "seconds": 5.8,
+      "step": "Know the day they move",
+      "capture": {
+        "src": "captures/linkedin-panel-job-change.png",
+        "w": 1078,
+        "h": 1120
+      },
+      "camera": [
+        {
+          "t": 0,
+          "x": 539,
+          "y": 560,
+          "zoom": 0.78,
+          "tiltY": 14
+        },
+        {
+          "t": 1.3,
+          "x": 886,
+          "y": 529,
+          "zoom": 1.8
+        },
+        {
+          "t": 5.8,
+          "x": 886,
+          "y": 529,
+          "zoom": 1.92
+        }
+      ],
+      "clicks": [
+        {
+          "t": 2.2,
+          "x": 965,
+          "y": 545,
+          "from": [
+            760,
+            760
+          ]
+        }
+      ],
+      "popups": [
+        {
+          "t": 2.4,
+          "until": 5.8,
+          "src": "captures/linkedin-job-change-detected-modal.png",
+          "w": 880,
+          "h": 686,
+          "scale": 1.15
+        }
+      ]
+    },
+    {
+      "type": "channels",
+      "step": "Alerted where your team works",
+      "items": [
+        {
+          "logo": "hubspot",
+          "name": "A HubSpot task",
+          "src": "captures/hubspot-task-card.png",
+          "w": 1120,
+          "h": 572,
+          "seconds": 2.2
+        },
+        {
+          "logo": "slack",
+          "name": "A Slack post",
+          "src": "captures/slack-message-card.png",
+          "w": 1200,
+          "h": 502,
+          "seconds": 2.2
+        },
+        {
+          "logo": "gmail",
+          "name": "A weekly email recap",
+          "src": "captures/email-weekly-recap.png",
+          "w": 1360,
+          "h": 1504,
+          "seconds": 2.4
+        },
+        {
+          "logo": "salesforce",
+          "name": "A Salesforce task",
+          "src": "captures/salesforce-task-card.png",
+          "w": 1080,
+          "h": 248,
+          "seconds": 2.2
+        }
+      ]
+    },
+    {
+      "type": "lockup",
+      "seconds": 2.8,
+      "tagline": "Job change alerts for HubSpot and Salesforce"
+    }
+  ]
+}

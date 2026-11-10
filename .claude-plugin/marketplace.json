@@ -1,0 +1,11 @@
+{
+  "name": "hublead",
+  "owner": { "name": "Hublead" },
+  "plugins": [
+    {
+      "name": "hublead-video",
+      "source": "./",
+      "description": "Make a Hublead feature video in minutes, with the real product UI."
+    }
+  ]
+}
