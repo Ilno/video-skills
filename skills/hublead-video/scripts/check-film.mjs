@@ -71,6 +71,32 @@ const len = spec.scenes.reduce((a, s) => a + (s.type === "channels" ? s.items.re
 if (len < 30 || len > 50) fail("film", `lasts ${len.toFixed(1)} s, the skill aims at 30 to 50 s`)
 if (spec.music && !fs.existsSync(path.join(film, "public", spec.music))) fail("film", `missing music public/${spec.music}`)
 
+// The live app screens come from the admin-ui bundle: its own copy is on screen too and film.json cannot change it.
+// Warn (exit code unchanged) on any bundle string that breaks copy.md, so the film author picks other screens or asks
+// for a bundle change. Seen 2026-11-10: "You hear the moment one moves" on the Job changes stat card.
+const warns = []
+const usesApp = spec.scenes.some((s) => s.type === "shot" && s.capture?.app)
+const bundleDir = [path.join(film, "src/hublead-app"), path.join(film, "template/src/hublead-app")].find((d) => fs.existsSync(d))
+if (usesApp && bundleDir) {
+  const js = fs.readFileSync(path.join(bundleDir, "hublead-app.js"), "utf8")
+  const seen = new Set()
+  // string literals that read as English UI copy: quotes, single quotes and template literals
+  for (const m of js.matchAll(/"([^"\\\n]{8,240})"|'([^'\\\n]{8,240})'|`([^`\\]{8,400})`/g)) {
+    const t = (m[1] ?? m[2] ?? m[3]).replace(/\$\{[^}]*\}/g, "…").trim()
+    if (!/\s/.test(t) || !/[a-z]{3}/.test(t) || /[{};=<>]|^(https?:|\.|\/)/.test(t) || seen.has(t)) continue
+    const tok = t.split(/\s+/)
+    if (tok.filter((w) => /[-:\[(]/.test(w)).length * 2 > tok.length) continue   // CSS class lists, not copy
+    if (SPEED.test(t)) { seen.add(t); warns.push(`app bundle copy "${t}" promises a detection speed (${t.match(SPEED)[0]}): keep it off screen or ask for a bundle change`) }
+    else if (BANNED.test(t)) { seen.add(t); warns.push(`app bundle copy "${t}" uses a banned word (${t.match(BANNED)[0]})`) }
+  }
+  // stale bundle: a screen the customer no longer sees. ADMIN_UI_HEAD=<sha of admin-ui main> turns this on.
+  const src = fs.existsSync(path.join(bundleDir, "SOURCE.txt")) ? fs.readFileSync(path.join(bundleDir, "SOURCE.txt"), "utf8") : ""
+  const built = (src.match(/admin-ui ([0-9a-f]{7,40})/) || [])[1]
+  const head = process.env.ADMIN_UI_HEAD
+  if (head && built && !head.startsWith(built) && !built.startsWith(head)) warns.push(`app bundle built from admin-ui ${built}, main is ${head.slice(0, 8)}: rebuild it (studio/README.md) before showing it`)
+}
+for (const w of warns) console.log(`  WARN ${w}`)
+
 if (fails.length) {
   console.log(`CHECK FAIL (${fails.length})`)
   for (const f of fails) console.log(`  - ${f}`)

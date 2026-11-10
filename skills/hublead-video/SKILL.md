@@ -78,9 +78,13 @@ Ignore the `track.py` / `listen.py` hints it prints: they belong to cinetic, not
 
 ```bash
 node scripts/check-film.mjs              # the words and numbers of film.json against references/copy.md
+ADMIN_UI_HEAD=<admin-ui main sha> node scripts/check-film.mjs   # also warns when the app bundle is older than admin-ui main
 node scripts/render.mjs --sheet          # one frame per second in out/sheet/ (runs the check first)
 node scripts/render.mjs --still 12.5     # one moment
 ```
+
+`WARN app bundle copy` lines are the dashboard's own text breaking copy.md (a speed promise such as "the moment one moves"):
+film.json cannot change it, so frame that screen without it or ask for a bundle change.
 
 Look at the frames yourself (Read the PNGs) and fix before showing anything: text readable, pointer on its
 button, nothing cut at the edges, no empty frame, step pills not covering what the step shows, no personal data.
