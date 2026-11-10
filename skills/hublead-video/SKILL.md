@@ -77,12 +77,15 @@ Ignore the `track.py` / `listen.py` hints it prints: they belong to cinetic, not
 ## 6. Check before rendering
 
 ```bash
-node scripts/render.mjs --sheet          # one frame per second in out/sheet/
+node scripts/check-film.mjs              # the words and numbers of film.json against references/copy.md
+node scripts/render.mjs --sheet          # one frame per second in out/sheet/ (runs the check first)
 node scripts/render.mjs --still 12.5     # one moment
 ```
 
 Look at the frames yourself (Read the PNGs) and fix before showing anything: text readable, pointer on its
-button, nothing cut at the edges, no empty frame, step pills not covering what the step shows, no personal data.
+button, nothing cut at the edges, no empty frame, step pills not covering what the step shows, no personal data,
+the live app's sidebar and header drawn as in the real dashboard. A `[film] target not found` line in the output
+means the pointer or the camera fell back to the middle of the capture: fix the target's text.
 
 ## 7. Render and hand over
 

@@ -26,7 +26,7 @@ const template = path.join(here, "..", "template")
 fs.mkdirSync(parent, { recursive: true })
 fs.cpSync(template, film, { recursive: true, filter: (src) => !/node_modules|[\\/]out[\\/]?$/.test(src) })
 fs.mkdirSync(path.join(film, "scripts"), { recursive: true })
-for (const f of ["render.mjs", "music.mjs", "sfx.mjs"]) fs.copyFileSync(path.join(here, f), path.join(film, "scripts", f))
+for (const f of ["render.mjs", "check-film.mjs", "music.mjs", "sfx.mjs"]) fs.copyFileSync(path.join(here, f), path.join(film, "scripts", f))
 const pkg = JSON.parse(fs.readFileSync(path.join(film, "package.json"), "utf8"))
 pkg.name = slug
 pkg.scripts.render = "node scripts/render.mjs"

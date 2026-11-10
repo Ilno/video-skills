@@ -3,6 +3,7 @@
 //   node scripts/render.mjs              -> out/<name>.mp4 (1080p, ~14 Mb/s, plays everywhere)
 //   node scripts/render.mjs --still 4.5  -> out/still-4.5.png, one frame at 4.5 s, to check a moment
 //   node scripts/render.mjs --sheet      -> out/sheet/*.png, one frame per second, to review the whole film
+//   the sheet and the full render run scripts/check-film.mjs first and stop if it fails (--force renders anyway)
 import { execFileSync } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
@@ -20,11 +21,23 @@ if (still >= 0) {
   process.exit(0)
 }
 
+// film.json is checked first (scripts/check-film.mjs): a failed check stops here, before minutes of rendering
+if (still < 0) {
+  try {
+    execFileSync(process.execPath, [path.join(film, "scripts", "check-film.mjs")], { cwd: film, stdio: "inherit" })
+  } catch {
+    if (!args.includes("--force")) {
+      console.error("\nFix film.json first (or add --force to render anyway).")
+      process.exit(1)
+    }
+  }
+}
+
 if (args.includes("--sheet")) {
   const film = JSON.parse(fs.readFileSync("film.json", "utf8"))
   const len = film.scenes.reduce((a, s) => a + (s.type === "channels" ? s.items.reduce((b, i) => b + i.seconds, 0) : s.seconds), 0) - 0.5 * (film.scenes.length - 1)
   fs.mkdirSync("out/sheet", { recursive: true })
-  for (let s = 0.5; s < len; s += 1) npx(["still", "Film", `out/sheet/${String(s.toFixed(1)).padStart(5, "0")}.png`, `--frame=${Math.round(s * 30)}`, "--log=error"])
+  for (let s = 0.5; s < len; s += 1) npx(["still", "Film", `out/sheet/${String(s.toFixed(1)).padStart(5, "0")}.png`, `--frame=${Math.round(s * 30)}`, "--log=warn"])
   console.log("\nout/sheet ready")
   process.exit(0)
 }
