@@ -194,7 +194,14 @@ const warnedTwice = new Set<string>();
 const findTarget = (root: HTMLElement, label: string): HTMLElement | null => {
   if (label.startsWith('css:')) return root.querySelector<HTMLElement>(label.slice(4));
   const all = [...root.querySelectorAll<HTMLElement>('button, a, [role=tab], [role=menuitem], [role=option], th, td, label, h1, h2, h3, p, span, div')];
-  const exact = all.filter((el) => ownText(el) === label);
+  // plus any element whose own text node is the label (a card title in an h4 or a dt is not in the list above)
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const byText: HTMLElement[] = [];
+  while (walker.nextNode()) {
+    const n = walker.currentNode;
+    if (n.parentElement && (n.nodeValue ?? '').replace(/\s+/g, ' ').trim() === label) byText.push(n.parentElement);
+  }
+  const exact = [...new Set([...all.filter((el) => ownText(el) === label), ...byText])];
   // the same text in two places (a card title and a column header, the signed-in user and a table row): the smallest
   // wins, which may not be the one the film means; say so once, a css: selector settles it
   const places = exact.filter((el) => !exact.some((o) => o !== el && el.contains(o)));

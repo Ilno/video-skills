@@ -25,17 +25,12 @@ const dir = args.includes("--out") ? path.resolve(args[args.indexOf("--out") + 1
 fs.mkdirSync(dir, { recursive: true })
 console.log(`bundle + browser ready in ${((Date.now() - t0) / 1000).toFixed(0)} s`)
 let n = 0
-// the film's own warnings ("[film] target not found", a target on screen twice) come from the page: print each once
-const seen = new Set()
-const onBrowserLog = (log) => {
-  if (!log.text.includes("[film]") || seen.has(log.text)) return
-  seen.add(log.text)
-  console.log(log.text)
-}
+// the film's own warnings ("[film] target not found", a target on screen twice) come from the page; renderStill
+// prints them at the "warn" log level
 for (let s = from; s < to; s += every) {
   const t = Date.now()
   const output = path.join(dir, `${s.toFixed(1).padStart(5, "0")}.png`)
-  await renderStill({ composition, serveUrl, frame: Math.min(Math.round(s * composition.fps), composition.durationInFrames - 1), output, puppeteerInstance: browser, logLevel: "warn", onBrowserLog })
+  await renderStill({ composition, serveUrl, frame: Math.min(Math.round(s * composition.fps), composition.durationInFrames - 1), output, puppeteerInstance: browser, logLevel: "warn" })
   n++
   console.log(`${path.basename(output)} ${((Date.now() - t) / 1000).toFixed(1)} s`)
 }
